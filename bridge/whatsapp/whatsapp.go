@@ -112,7 +112,15 @@ func (b *Bwhatsapp) Connect() error {
 	if err != nil {
 		return fmt.Errorf("error on update of contacts: %v", err)
 	}
-
+	
+	//---------additional code------------#
+	for len(b.conn.Store.Contacts) == 0 {
+		// fmt.Println("Contacts list not yet ready, waiting a second")
+		b.conn.Contacts()
+		<-time.After(1 * time.Second)
+	}
+	//---------end of additional code------#
+	
 	// map all the users
 	for id, contact := range b.conn.Store.Contacts {
 		if !isGroupJid(id) && id != "status@broadcast" {
@@ -191,7 +199,13 @@ func isGroupJid(identifier string) bool {
 // https://github.com/42wim/matterbridge/blob/2cfd880cdb0df29771bf8f31df8d990ab897889d/bridge/bridge.go#L11-L16
 func (b *Bwhatsapp) JoinChannel(channel config.ChannelInfo) error {
 	byJid := isGroupJid(channel.Name)
-
+	//---------additional code------------#
+	for len(b.conn.Store.Contacts) == 0 {
+		// fmt.Println("Contacts list not yet ready, waiting a second")
+		b.conn.Contacts()
+		<-time.After(1 * time.Second)
+	}
+	//---------end of additional code------#
 	// verify if we are member of the given group
 	if byJid {
 		// channel.Name specifies static group jID, not the name
